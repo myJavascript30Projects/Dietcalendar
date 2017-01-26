@@ -1,0 +1,15 @@
+{
+  "name": "eventcalendar",
+  "version": "1.0.0",
+  "description": "creating an event calendar using google api",
+  "main": "quickstart.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "james mitchell",
+  "license": "ISC",
+  "dependencies": {
+    "moment": "^2.17.1",
+    "moment-timezone": "^0.5.11"
+  }
+}

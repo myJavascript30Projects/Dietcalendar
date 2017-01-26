@@ -1,0 +1,221 @@
+<html>
+  <head>
+  </head>
+  <body>
+
+  <h2 align="center">Calendar</h2>
+    <div id="authorize-div" style="display: none">
+      <span>Authorize access to Google Calendar API</span>
+      <!--Button for the user to click to initiate auth sequence -->
+      <button id="authorize-button" onclick="handleAuthClick(event)">
+        Authorize
+      </button>
+    </div>
+
+  <div class="calEvents">
+    <input id="inputEventName" type="text" name="create event name" value="add a name">
+    <input id="inputEventDate" type="text" name="create event date"
+    value="add a date and time">
+     <button id="addEvent-button" onclick="addEvents()">add event</button>
+     <br>
+     <br>
+    <table>
+    <tr>
+      <th>events</th>
+      <br>
+    </tr>
+    <tr>
+      <td id="calendar"></td>
+    </tr>
+    <tr>
+    </tr>
+    </table>
+    <br>
+  </div>
+  <style type="text/css">
+    body {
+      min-height: 100vh;
+      background:
+        height:100%;
+      background: linear-gradient(0deg, teal, white 55%) no-repeat;
+    }
+    h2 {
+      color: coral;
+      padding: 0;
+    }
+    table {
+      border: 1px solid black;
+    }
+     th {
+
+    }
+    .whoResultsCreator {
+      color: coral;
+      text-decoration: none;
+    }
+    .whoResultsAttendee {
+      color: coral;
+      text-decoration: none;
+    }
+    .whenResults {
+      color: coral;
+      text-decoration: none;
+      margin-bottom: 100px;
+    }
+  </style>
+    <script src="./node_modules/moment/moment.js"></script>
+    <script type="text/javascript">
+      moment().format();
+      //grab
+      // Your Client ID can be retrieved from your project in the Google
+
+      // Developer Console, https://console.developers.google.com
+      var CLIENT_ID = '456666529035-4it2frvuu4qbbh1nt3c3sfkmsmvmffrc.apps.googleusercontent.com';
+
+      var SCOPES = ["https://www.googleapis.com/auth/calendar"];
+
+      /**
+       * Check if current user has authorized this application.
+       */
+      function checkAuth() {
+        gapi.auth.authorize(
+          {
+            'client_id': CLIENT_ID,
+            'scope': SCOPES.join(' '),
+            'immediate': true
+          }, handleAuthResult);
+      }
+
+      /**
+       * Handle response from authorization server.
+       *
+       * @param {Object} authResult Authorization result.
+       */
+      function handleAuthResult(authResult) {
+        var authorizeDiv = document.getElementById('authorize-div');
+        if (authResult && !authResult.error) {
+          // Hide auth UI, then load client library.
+          authorizeDiv.style.display = 'none';
+          loadCalendarApi();
+        } else {
+          // Show auth UI, allowing the user to initiate authorization by
+          // clicking authorize button.
+          authorizeDiv.style.display = 'inline';
+        }
+      }
+
+      /**
+       * Initiate auth flow in response to user clicking authorize button.
+       *
+       * @param {Event} event Button click event.
+       */
+      function handleAuthClick(event) {
+        gapi.auth.authorize(
+          {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+          handleAuthResult);
+        return false;
+      }
+
+      /**
+       * Load Google Calendar client library. List upcoming events
+       * once client library is loaded.
+       */
+      function loadCalendarApi() {
+        gapi.client.load('calendar', 'v3', listUpcomingEvents);
+      }
+
+      function listUpcomingEvents() {
+        const request = gapi.client.calendar.events.list({
+          'calendarId': 'primary',
+          'timeMin': (new Date()).toISOString(),
+          'showDeleted': false,
+          'singleEvents': true,
+          'maxResults': 10,
+          'orderBy': 'startTime'
+        });
+
+        request.execute((resp) => {
+          //html element where events are stored
+          var calendar = document.getElementById('calendar');
+          var events = resp.items;
+
+          if (events.length > 0) {
+            for (i = 0; i < events.length; i++) {
+              var event = events[i];
+              //organizer name property
+              var whoCreator = event.organizer.displayName;
+              //attendee name property
+              // var whoAttendee = event.attendees[0].displayName;
+              //date and time event property
+              var when = event.start.dateTime;
+              //reformatted date and time event propertyas
+              var finalWhen = moment(when).format("dddd, MMMM Do YYYY, h:mm:ss a")
+              //console.log(who);
+              //console.log(when);
+              if (!when) {
+                when = event.start.date;
+              }
+               //appending event info to the DOM
+               var temp = document.createElement('div');
+               // var tempTwo = document.createElement('div');
+               var tempThree = document.createElement('div');
+               temp.className = 'whoResultsCreator';
+               // temp.className = 'whoResultsAttendee';
+               tempThree.className = 'whenResults';
+               temp.innerHTML = whoCreator;
+               // tempTwo.innerHTML = whoAttendee;
+               tempThree.innerHTML = finalWhen;
+               document.getElementsByTagName('body')[0].appendChild(temp);
+               // document.getElementsByTagName('body')[0].appendChild(tempTwo);
+               document.getElementsByTagName('body')[0].appendChild(tempThree);
+            }
+          } else {
+            const noEvents = document.createTextNode('No upcoming events found.');
+            pre.appendChild(noEvents);
+          }
+          //console.log(event);
+        });
+      }
+      //object example to give insert event function
+      var newEvent = {
+        "start": {
+          "dateTime": new Date(),
+          "timeZone": "Europe/Zurich"
+        },
+        "end": {
+          "dateTime": new Date(),
+          "timeZone": "Europe/Zurich"
+        }
+      }
+      //take input values from DOM
+      function inputEvents() {
+        var inputEventName = document.getElementById('inputEventName').value;
+        var inputEventDate = document.getElementById('inputEventDate').value;
+      }
+      //add events to API
+      function addEvents() {
+
+        var addEventRequest = gapi.client.calendar.events.insert({
+            'calendarId': 'primary',
+            'resource': newEvent //make this an html input field
+
+          });
+        console.log(addEventRequest);
+        //var htmlEventRequest = document.createElement('div');
+        //htmlEventRequest.innerHTML = addEventRequest;
+        addEventRequest.execute((event) => {
+
+            var nodeEvent = document.createTextNode(event);
+
+            calendar.appendChild('Event created: ' + nodeEvent.htmlLink);
+          });
+      }
+
+
+
+    </script>
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth">
+    </script>
+
+  </body>
+</html>
