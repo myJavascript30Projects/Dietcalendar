@@ -194,6 +194,7 @@
       }
       //add events to API
       function addEvents() {
+        var inputEventDate = document.getElementById('inputEventDate').value;
 
         var addEventRequest = gapi.client.calendar.events.insert({
             'calendarId': 'primary',
@@ -205,9 +206,10 @@
         //htmlEventRequest.innerHTML = addEventRequest;
         addEventRequest.execute((event) => {
 
-            var nodeEvent = document.createTextNode(event);
+            //var nodeEvent = document.createTextNode(event);
 
-            calendar.appendChild('Event created: ' + nodeEvent.htmlLink);
+            // calendar.appendChild('Event created: ' + nodeEvent.htmlLink);
+             document.getElementsByTagName('body')[0].appendChild(event);
           });
       }
 
