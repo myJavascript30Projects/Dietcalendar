@@ -37,7 +37,7 @@
       min-height: 100vh;
       background:
         height:100%;
-      background: linear-gradient(0deg, teal, white 55%) no-repeat;
+      background: linear-gradient(0deg, teal, white 70%) no-repeat;
     }
     h2 {
       color: coral;
@@ -206,10 +206,12 @@
         //htmlEventRequest.innerHTML = addEventRequest;
         addEventRequest.execute((event) => {
 
-            //var nodeEvent = document.createTextNode(event);
+            // var nodeEvent = document.createTextNode(event);
 
             // calendar.appendChild('Event created: ' + nodeEvent.htmlLink);
-             document.getElementsByTagName('body')[0].appendChild(event);
+             var nodeEvent = document.createElement('div');
+             nodeEvent.innerHTML = event;
+             document.getElementsByTagName('body')[0].appendChild(nodeEvent);
           });
       }
 
