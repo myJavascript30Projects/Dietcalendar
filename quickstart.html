@@ -11,11 +11,11 @@
         Authorize
       </button>
     </div>
-
+  <br>
+  <br>
   <div class="calEvents">
     <input id="inputEventName" type="text" name="create event name" value="add a name">
-    <input id="inputEventDate" type="text" name="create event date"
-    value="add a date and time">
+    <input id="inputEventDate"  >
      <button id="addEvent-button" onclick="addEvents()">add event</button>
      <br>
      <br>
@@ -64,6 +64,10 @@
     }
   </style>
     <script src="./node_modules/moment/moment.js"></script>
+    <script src="./node_modules/pikaday/pikaday.js"></script>
+<script>
+    var picker = new Pikaday({ field: document.getElementById('inputEventDate') });
+</script>
     <script type="text/javascript">
       moment().format();
       //grab
@@ -133,7 +137,6 @@
           'maxResults': 10,
           'orderBy': 'startTime'
         });
-
         request.execute((resp) => {
           //html element where events are stored
           var calendar = document.getElementById('calendar');
@@ -170,7 +173,7 @@
                document.getElementsByTagName('body')[0].appendChild(tempThree);
             }
           } else {
-            const noEvents = document.createTextNode('No upcoming events found.');
+            var noEvents = document.createTextNode('No upcoming events found.');
             pre.appendChild(noEvents);
           }
           //console.log(event);
@@ -187,35 +190,35 @@
           "timeZone": "Europe/Zurich"
         }
       }
-      //take input values from DOM
-      function inputEvents() {
-        var inputEventName = document.getElementById('inputEventName').value;
-        var inputEventDate = document.getElementById('inputEventDate').value;
-      }
       //add events to API
       function addEvents() {
+        //take input values from DOM
+        var inputEventName = document.getElementById('inputEventName').value;
         var inputEventDate = document.getElementById('inputEventDate').value;
-
         var addEventRequest = gapi.client.calendar.events.insert({
             'calendarId': 'primary',
-            'resource': newEvent //make this an html input field
-
+            'resource': newEvent//make this an html input field
           });
         console.log(addEventRequest);
-        //var htmlEventRequest = document.createElement('div');
-        //htmlEventRequest.innerHTML = addEventRequest;
         addEventRequest.execute((event) => {
-
-            // var nodeEvent = document.createTextNode(event);
-
-            // calendar.appendChild('Event created: ' + nodeEvent.htmlLink);
+             console.log(event);
+             //reformat inserted date
+             var finalWhenInsert = moment(event.start.dateTime).format("dddd, MMMM Do YYYY, h:mm:ss a")
              var nodeEvent = document.createElement('div');
-             nodeEvent.innerHTML = event;
-             document.getElementsByTagName('body')[0].appendChild(nodeEvent);
+             var nodeDateEvent = document.createElement('div');
+             nodeEvent.innerHTML = event.organizer.displayName
+             nodeDateEvent.innerHTML = finalWhenInsert;
+             document.body.appendChild(nodeEvent);
+             document.body.appendChild(nodeDateEvent);
           });
       }
-
-
+      var picker = new Pikaday({
+        field: document.getElementById('inputEventDate'),
+        format: 'D MMM YYYY',
+        onSelect: function() {
+            console.log(this.getMoment().format('Do MMMM YYYY'));
+        }
+    });
 
     </script>
     <script src="https://apis.google.com/js/client.js?onload=checkAuth">
